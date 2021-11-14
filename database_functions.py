@@ -1,5 +1,4 @@
-import pyrebase #pip dependacies: pyrebase
-import keyboard
+import pyrebase 
 import time
 import subprocess
 
@@ -31,15 +30,11 @@ def sendtext(username, message):
 def grabtext(username):
   ptime = 0
   while True:
-    if keyboard.is_pressed('q'):
-      break
-    else:
-      time.sleep(4)  
-      ltime = db.child("time").get().val()  
-      if ltime != ptime:
-        message = list(db.child(username).get().val().values())[0]
+    time.sleep(4)  
+    ltime = db.child("time").get().val()  
+    if ltime != ptime:
+      message = list(db.child(username).get().val().values())[0]
+      if message != "":
         print(message)
         say(message)
 
-username="hearing_imp"
-grabtext(username)
