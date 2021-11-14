@@ -2,7 +2,6 @@ import cv2
 import pickle
 import pandas as pd
 import mediapipe as mp
-from sklearn import preprocessing
 
 cv2.namedWindow("preview")
 vc = cv2.VideoCapture(0)
@@ -26,10 +25,9 @@ for loc in ["right_", "left_"]:
         actual_columns.append(new_column)
 
 data = pd.DataFrame(columns=actual_columns)
-min_max_scaler = preprocessing.StandardScaler()
 
 file_name = 'sign_language.sav'
-#loaded_model = pickle.load(open(file_name, 'rb'))
+loaded_model = pickle.load(open(file_name, 'rb'))
 
 def actual_handedness(hands):
     if (hands == "Right"):
@@ -73,15 +71,13 @@ while True:
 #                cv2.line(frame, (x1, y1), (x2, y2), (255, 0, 0), 3)
     
         if imLst:
-            data = data.append(row_data, ignore_index=True)
-            #img = pd.DataFrame(row_data, index = [0])
-            #imgX = img.to_numpy()
-            #scaled_X = min_max_scaler.fit_transform(imgX)
-            #print(loaded_model.predict(scaled_X))
-            #print("")
+            #data = data.append(row_data, ignore_index=True)
+            img = pd.DataFrame(row_data, index = [0])
+            print(loaded_model.predict(img))
+        print("")
         cv2.imshow("preview", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-data.to_csv(r'you.csv', index = False, header = True)
+#data.to_csv(r'you.csv', index = False, header = True)
