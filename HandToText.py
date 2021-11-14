@@ -11,13 +11,14 @@ mpHands = mp.solutions.hands
 hands = mpHands.Hands()
 mpDraw = mp.solutions.drawing_utils
 
-columns = ["wrist_x", "wrist_y", "thumb_cmc_x", "thumb_cmc_y", "thumb_mcp_x", "thumb_mcp_y", "thumb_ip_x", "thumb_ip_y", 
-           "thumb_tip_x", "thumb_tip_y", "index_finger_mcp_x", "index_finger_mcp_y", "index_finger_pip_x", "index_finger_pip_y",
-           "index_finger_dip_x", "index_finger_dip_y", "index_finger_tip_x", "index_finger_tip_y", "middle_finger_mcp_x", "middle_finger_mcp_y",
-           "middle_finger_pip_x", "middle_finger_pip_y", "middle_finger_dip_x", "middle_finger_dip_y", "middle_finger_tip_x", "middle_finger_tip_y",
-           "ring_finger_mcp_x", "ring_finger_mcp_y", "ring_finger_pip_x", "ring_finger_pip_y", "ring_finger_dip_x", "ring_finger_dip_y",
-           "ring_finger_tip_x", "ring_finger_tip_y", "pinky_mcp_x", "pinky_mcp_y", "pinky_pip_x", "pinky_pip_y", "pinky_dip_x", "pinky_dip_y",
-           "pinky_tip_x", "pinky_tip_y"]
+columns = ["wrist_x", "wrist_y", "wrist_z", "thumb_cmc_x", "thumb_cmc_y", "thumb_cmc_z", "thumb_mcp_x", "thumb_mcp_y", "thumb_mcp_z", "thumb_ip_x", "thumb_ip_y", 
+           "thumb_ip_z", "thumb_tip_x", "thumb_tip_y", "thumb_tip_z", "index_finger_mcp_x", "index_finger_mcp_y", "index_finger_mcp_z", "index_finger_pip_x", 
+           "index_finger_pip_y", "index_finger_pip_z", "index_finger_dip_x", "index_finger_dip_y", "index_finger_dip_z", "index_finger_tip_x", "index_finger_tip_y", 
+           "index_finger_tip_z", "middle_finger_mcp_x", "middle_finger_mcp_y", "middle_finger_mcp_z", "middle_finger_pip_x", "middle_finger_pip_y", "middle_finger_pip_z",
+           "middle_finger_dip_x", "middle_finger_dip_y", "middle_finger_dip_z", "middle_finger_tip_x", "middle_finger_tip_y", "middle_finger_tip_z", "ring_finger_mcp_x", 
+           "ring_finger_mcp_y", "ring_finger_mcp_z", "ring_finger_pip_x", "ring_finger_pip_y", "ring_finger_pip_z", "ring_finger_dip_x", "ring_finger_dip_y", "ring_finger_dip_z",
+           "ring_finger_tip_x", "ring_finger_tip_y", "ring_finger_tip_z", "pinky_mcp_x", "pinky_mcp_y", "pinky_mcp_z", "pinky_pip_x", "pinky_pip_y", "pinky_pip_z", "pinky_dip_x", 
+           "pinky_dip_y", "pinky_dip_z", "pinky_tip_x", "pinky_tip_y", "pinky_tip_z"]
 
 actual_columns = []
 for loc in ["right_", "left_"]:
@@ -29,7 +30,7 @@ data = pd.DataFrame(columns=actual_columns)
 min_max_scaler = preprocessing.StandardScaler()
 
 file_name = 'sign_language.sav'
-#loaded_model = pickle.load(open(file_name, 'rb'))
+loaded_model = pickle.load(open(file_name, 'rb'))
 
 def actual_handedness(hands):
     if (hands == "Right"):
@@ -51,37 +52,30 @@ while True:
                 handedness = results.multi_handedness[hand_index]
                 acutal_hand = actual_handedness(handedness.classification[0].label)
                 for id, lm in enumerate(handlandmark.landmark):
-                    h, w, _ = frame.shape
-                    cx, cy = int(lm.x * w), int(lm.y * h)
-
-                    if (id * 2 + 1 <= len(columns)):
-                        column_x = columns[id * 2]
-                        column_y = columns[(id * 2) + 1]
+                    h, w, d = frame.shape
+                    cx, cy, cz = int(lm.x * w), int(lm.y * h), int(lm.z * d)
+                    if (id * 3 + 1 <= len(columns)):
+                        column_x = columns[id * 3]
+                        column_y = columns[(id * 3) + 1]
+                        column_z = columns[(id * 3) + 2]
                         row_data[acutal_hand + column_x] = cx
                         row_data[acutal_hand + column_y] = cy
+                        row_data[acutal_hand + column_z] = cz
                         imLst.append([id, cx, cy])
 
                 hand_index += 1
                 mpDraw.draw_landmarks(frame, handlandmark, mpHands.HAND_CONNECTIONS)
-
-#            if imLst:
-#                x1, y1 = imLst[4][1], imLst[4][2]
-#                x2, y2 = imLst[8][1], imLst[8][2]
-#
-#                cv2.circle(frame, (x1, y1), 4, (255, 0, 0), cv2.FILLED)
-#                cv2.circle(frame, (x2, y2), 4, (255, 0, 0), cv2.FILLED)
-#                cv2.line(frame, (x1, y1), (x2, y2), (255, 0, 0), 3)
     
         if imLst:
-            data = data.append(row_data, ignore_index=True)
-            #img = pd.DataFrame(row_data, index = [0])
-            #imgX = img.to_numpy()
-            #scaled_X = min_max_scaler.fit_transform(imgX)
-            #print(loaded_model.predict(scaled_X))
-            #print("")
+            #data = data.append(row_data, ignore_index=True)
+            img = pd.DataFrame(row_data, index = [0])
+            imgX = img.to_numpy()
+            scaled_X = imgX / 1000 #min_max_scaler.fit_transform(imgX)
+            print(loaded_model.predict_proba(scaled_X))
+            print("")
         cv2.imshow("preview", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-data.to_csv(r'you.csv', index = False, header = True)
+#data.to_csv(r'everyone.csv', index = False, header = True)
