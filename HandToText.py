@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import mediapipe as mp
 from sklearn import preprocessing
+from database_functions import sendtext
 
 cv2.namedWindow("preview")
 vc = cv2.VideoCapture(0)
@@ -34,11 +35,11 @@ file_name = 'sign_language.sav'
 loaded_model = pickle.load(open(file_name, 'rb'))
 
 words = ["Hello", "to meet", "nice", "everyone"]
-last_word = ""
+last_words = set()
 sentence = ""
 
 frame_count = 0
-frame_display = ""
+frame_display = "!"
 
 def actual_handedness(hands):
     if (hands == "Right"):
@@ -82,22 +83,28 @@ while True:
             probs = loaded_model.predict_proba(scaled_X)
             max_prob = max(probs[0])
             word = words[np.where(probs[0] == max_prob)[0][0]]
-            print(probs, max_prob, word)
-            if max_prob >= 0.9 and last_word != word:
+            if max_prob >= 0.9 and not word in last_words:
                 sentence = sentence + " " + word
-                last_word = word
+                last_words.add(word)
 
         if sentence != "":
             font = cv2.FONT_HERSHEY_SIMPLEX
             textsize = cv2.getTextSize(sentence, font, 1, 2)[0]
             textX = (frame.shape[1] - textsize[0]) // 2
             textY = (frame.shape[0] + textsize[1]) // 10
-            cv2.putText(frame, sentence, (textX, textY), font, 1, (255, 255, 255), 2)
+            cv2.putText(frame, "Me: " + sentence, (textX, textY), font, 1, (255, 255, 255), 2)
 
         cv2.imshow("preview", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
+    if frame_count % 50 == 0  and frame_display == sentence and sentence != "":
+        sendtext("hearing_imp", sentence)
+        sentence = ""
+        last_words = set()
+    elif frame_count % 50 == 0  and frame_display != sentence:
+        frame_display = sentence
 
     frame_count += 1
 

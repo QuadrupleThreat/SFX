@@ -22,7 +22,7 @@ firebase=pyrebase.initialize_app(firebaseConfig)
 db=firebase.database()
 
 def sendtext(username, message):
-    data={"text":message} 
+    data={"text": message}
     db.child(username).set(data) #sends text, other user needs username to pull texts from user
 
 username="coolsignguy"
