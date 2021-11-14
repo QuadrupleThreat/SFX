@@ -1,6 +1,7 @@
 import pyrebase #pip dependacies: pyrebase
 import keyboard
 import time
+import subprocess
 
 
 #auth configuration
@@ -24,29 +25,28 @@ firebaseConfig={"apiKey": "AIzaSyDr4vVZdvqv8-Kklyy-wfTE1rpNclYpvAs",
 firebase=pyrebase.initialize_app(firebaseConfig)
 db=firebase.database()
 
+def say(text):
+  subprocess
+
 def sendtext(username, message):
-    data={"text": message}
-    db.child(username).set(data) #sends text, other user needs username to pull texts from user
+  ltime = db.child("time").get().val() + 1
+  data={"text": message}
+  db.child(username).set(data) #sends text, other user needs username to pull texts from user
+  db.child("time").set(ltime)
+
+
+def grabtext(username):
+  ptime = 0
+  while True:
+    if keyboard.is_pressed('q'):
+      break
+    else:
+      time.sleep(4)  
+      ltime = db.child("time").get().val()  
+      if ltime != ptime:
+        message = list(db.child(username).get().val().values())[0]
+        print(message)
+        say(message)
 
 username="hearing_imp"
-message="How are you"
-oldmessage=""
-#sendtext(username,message)
-def grabtext(username,oldmessage):
-    while True:
-      if keyboard.is_pressed('q'):
-        break
-      else:
-        time.sleep(4)   
-        if oldmessage=="":
-          print(list(db.child(username).get().val().values())[0]) 
-          oldmessage=list(db.child(username).get().val().values())[0] #switches message out to allow a new message to be sent
-
-        elif list(db.child(username).get().val().values())[0]!=oldmessage:
-          print(list(db.child(username).get().val().values())[0])
-          oldmessage=list(db.child(username).get().val().values())[0]
-          
-
-    #print(list(user.values())[0]) #user is ordered dic, gives me text value
-
-grabtext(username,oldmessage)
+grabtext(username)
