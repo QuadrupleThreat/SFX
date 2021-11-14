@@ -6,19 +6,12 @@ import subprocess
 
 #auth configuration
 firebaseConfig={"apiKey": "AIzaSyDr4vVZdvqv8-Kklyy-wfTE1rpNclYpvAs",
-
   "authDomain": "asl-bility.firebaseapp.com",
-
   "databaseURL": "https://asl-bility-default-rtdb.firebaseio.com",
-
   "projectId": "asl-bility",
-
   "storageBucket" : "asl-bility.appspot.com",
-
   "messagingSenderId": "809839587836",
-
   "appId": "1:809839587836:web:be5770d7b81bc057fbc279",
-
   "measurementId": "G-S5FSMJ3W5Z"
 } 
 
