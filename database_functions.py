@@ -33,7 +33,7 @@ def grabtext(username):
     time.sleep(4)  
     ltime = db.child("time").get().val()  
     if ltime != ptime:
-      ltime = ptime
+      ptime = ltime
       message = list(db.child(username).get().val().values())[0]
       if message != "":
         print(message)
